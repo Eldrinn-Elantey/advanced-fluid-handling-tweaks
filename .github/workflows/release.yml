@@ -14,14 +14,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
-      - name: Check tag matches info.json version
+      - name: Check the tag is on top of main
+        run: |
+          git fetch --tags --force
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "$GITHUB_REF_NAME^{commit}")" ]; then
+            echo "Tag $GITHUB_REF_NAME is not the tip of main, so the changelog commit has nowhere to go" >&2
+            exit 1
+          fi
+
+      - name: Stamp the version into the changelog
         shell: pwsh
         run: |
-          $version = (Get-Content info.json -Raw | ConvertFrom-Json).version
-          $tag = '${{ github.ref_name }}'
-          if ($version -ne $tag) { throw "Tag $tag does not match info.json version $version" }
+          # The placeholder entry collects everything written since the last release.
+          $changelog = Get-Content changelog.txt -Raw
+          if ($changelog -notmatch '(?m)^Version: 0\.0\.0\r?$') { throw "No 0.0.0 placeholder at the top of changelog.txt" }
+          $stamped = "Version: $env:GITHUB_REF_NAME`nDate: $(Get-Date -Format 'yyyy-MM-dd')"
+          $changelog -replace '(?m)^Version: 0\.0\.0\r?$', $stamped | Set-Content changelog.txt -NoNewline
 
+      # release.ps1 stamps the version into info.json too, from GITHUB_REF_NAME.
       - name: Build
         shell: pwsh
         run: ./release.ps1
@@ -30,4 +43,18 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create '${{ github.ref_name }}' (Get-Item build/*.zip).FullName --generate-notes
+        run: gh release create "$env:GITHUB_REF_NAME" (Get-Item build/*.zip).FullName --generate-notes
+
+      # The tag itself still holds the placeholder: it was written before this ran.
+      - name: Commit the changelog and reopen it for the next release
+        shell: pwsh
+        run: |
+          $separator = '-' * 99
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "Release $env:GITHUB_REF_NAME"
+
+          $placeholder = "$separator`nVersion: 0.0.0`n  Changes:`n    - Nothing yet`n"
+          Set-Content changelog.txt ($placeholder + (Get-Content changelog.txt -Raw)) -NoNewline
+          git commit -am 'Reopen the changelog for the next release'
+          git push origin HEAD:main
