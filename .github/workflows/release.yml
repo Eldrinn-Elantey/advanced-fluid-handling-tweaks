@@ -43,7 +43,16 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$env:GITHUB_REF_NAME" (Get-Item build/*.zip).FullName --generate-notes
+        run: |
+          # Release notes are the changelog entry just stamped, turned into markdown.
+          $entry = ((Get-Content changelog.txt -Raw) -split '(?m)^-{99}\r?$' |
+              Where-Object { $_.Trim() } | Select-Object -First 1).Trim() -split '\r?\n' |
+              Where-Object { $_ -notmatch '^(Version|Date):' } |
+              ForEach-Object { $_ -replace '^  (\S.*):$', '### $1' -replace '^    - ', '- ' }
+          $notes = Join-Path $env:RUNNER_TEMP 'notes.md' # kept out of the repo, it gets committed later
+          Set-Content $notes ($entry -join "`n")
+
+          gh release create "$env:GITHUB_REF_NAME" (Get-Item build/*.zip).FullName --notes-file $notes
 
       # The tag itself still holds the placeholder: it was written before this ran.
       - name: Commit the changelog and reopen it for the next release
