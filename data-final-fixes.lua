@@ -56,3 +56,37 @@ do
         if #added > 0 then data:extend(added) end
     end
 end
+
+-- Configurable Valves replaces what the Advanced Fluid Handling valves do, so hide them
+-- rather than offer two parallel sets. Prototypes stay in place: removing them would
+-- delete already built valves from existing saves.
+if mods["configurable-valves"] then
+    local hidden_recipes = {}
+
+    for _, entity in pairs(data.raw.valve or {}) do
+        -- ponytail: treats every type="valve" entity as Advanced Fluid Handling's.
+        -- Nothing else defines them today; narrow by name prefix if that changes.
+        for _, name in pairs(referenced_items(entity)) do
+            local item = data.raw.item[name]
+            if item then item.hidden = true end
+
+            local recipe = data.raw.recipe[name]
+            if recipe and not hidden_recipes[name] then
+                hidden_recipes[name] = true
+                recipe.enabled = false
+                recipe.hidden = true
+                log("[aft] Disabling Advanced Fluid Handling valve recipe '" .. name .. "'.")
+            end
+        end
+    end
+
+    -- A technology unlock would switch the recipes back on when researched.
+    for _, technology in pairs(data.raw.technology) do
+        for index = #(technology.effects or {}), 1, -1 do
+            local effect = technology.effects[index]
+            if effect.type == "unlock-recipe" and hidden_recipes[effect.recipe] then
+                table.remove(technology.effects, index)
+            end
+        end
+    end
+end

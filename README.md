@@ -14,6 +14,12 @@ Source: 10-overflow-space-valve (valve).
 
 Every prototype in `data.raw.valve` is walked, the item names it references are collected, and each name without an item prototype gets one: a `table.deepcopy` of an existing runtime prototype (`configurable-valve` from Configurable Valves if active, otherwise the vanilla `pipe` item), renamed, marked hidden, and pointed back at the valve entity. Each created item is logged.
 
+## Hides the Advanced Fluid Handling valves under Configurable Valves
+
+With Configurable Valves installed the two valve sets overlap, so the Advanced Fluid Handling ones are switched off: their recipes get `enabled = false` and `hidden = true`, their items get `hidden = true`, and matching `unlock-recipe` technology effects are dropped so research cannot switch them back on.
+
+Prototypes are deliberately not removed. Deleting them would erase already built valves from existing saves; hiding is reversible and safe to add to a running server.
+
 ## Building
 
 Run `release.bat` to produce `build\advanced-fluid-handling-tweaks_<version>.zip`, or `release.bat -Install` to drop it straight into the local `mods` folder. Pushing a tag matching the version in `info.json` builds the same zip in CI and publishes it as a GitHub release.
