@@ -26,10 +26,6 @@ With Configurable Valves installed the two valve sets overlap, so the Advanced F
 
 Prototypes are deliberately not removed. Deleting them would erase already built valves from existing saves; hiding is reversible and safe to add to a running server.
 
-## Building
-
-Run `release.bat` to produce `build\advanced-fluid-handling-tweaks_<version>.zip`, or `release.bat -Install` to drop it straight into the local `mods` folder. Pushing a tag matching the version in `info.json` builds the same zip in CI and publishes it as a GitHub release.
-
 ## Licensing note
 
 This mod contains no code, graphics, locale text or other assets from `underground-pipe-pack` or `configurable-valves`. It only reads and modifies their prototypes at load time through the official Factorio data stage API (`data.raw`, `table.deepcopy`, `data:extend`), which is the standard mechanism for compatibility patches.
