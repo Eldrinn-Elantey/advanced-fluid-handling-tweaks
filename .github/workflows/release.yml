@@ -19,8 +19,7 @@ jobs:
 
       - name: Check the tag is on top of main
         run: |
-          git fetch --tags --force
-          if [ "$(git rev-parse HEAD)" != "$(git rev-parse "$GITHUB_REF_NAME^{commit}")" ]; then
+          if [ "$(git rev-parse HEAD)" != "${{ github.sha }}" ]; then
             echo "Tag $GITHUB_REF_NAME is not the tip of main, so the changelog commit has nowhere to go" >&2
             exit 1
           fi
@@ -59,11 +58,10 @@ jobs:
         shell: pwsh
         run: |
           $separator = '-' * 99
+          $placeholder = "$separator`nVersion: 0.0.0`n  Changes:`n    - Nothing yet`n"
+          Set-Content changelog.txt ($placeholder + (Get-Content changelog.txt -Raw)) -NoNewline
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -am "Release $env:GITHUB_REF_NAME"
-
-          $placeholder = "$separator`nVersion: 0.0.0`n  Changes:`n    - Nothing yet`n"
-          Set-Content changelog.txt ($placeholder + (Get-Content changelog.txt -Raw)) -NoNewline
-          git commit -am 'Reopen the changelog for the next release'
           git push origin HEAD:main
