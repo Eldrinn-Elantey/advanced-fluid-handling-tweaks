@@ -14,6 +14,12 @@ Source: 10-overflow-space-valve (valve).
 
 Every prototype in `data.raw.valve` is walked, the item names it references are collected, and each name without an item prototype gets one: a `table.deepcopy` of an existing runtime prototype (`configurable-valve` from Configurable Valves if active, otherwise the vanilla `pipe` item), renamed, marked hidden, and pointed back at the valve entity. Each created item is logged.
 
+## One tab for fluid handling
+
+Advanced Fluid Handling adds its own item group, which leaves vanilla pipes, pumps and tanks on a separate tab. Items are moved into that group when they place an entity of type `pipe`, `pipe-to-ground`, `storage-tank`, `pump`, `valve` or `offshore-pump`, whichever mod they come from, so both sets sit together.
+
+Subgroups are not usable as the criterion here: vanilla puts the storage tank in `storage`, the offshore pump in `extraction-machine`, and mixes pipes together with electric poles in `energy-pipe-distribution`. Items already sitting on the Advanced Fluid Handling tab are left where their own mod placed them.
+
 ## Hides the Advanced Fluid Handling valves under Configurable Valves
 
 With Configurable Valves installed the two valve sets overlap, so the Advanced Fluid Handling ones are switched off: their recipes get `enabled = false` and `hidden = true`, their items get `hidden = true`, and matching `unlock-recipe` technology effects are dropped so research cannot switch them back on.

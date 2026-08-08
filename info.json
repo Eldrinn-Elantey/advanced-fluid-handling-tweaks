@@ -1,10 +1,10 @@
 {
   "name": "advanced-fluid-handling-tweaks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Advanced Fluid Handling Tweaks",
   "author": "Eldrinn",
   "factorio_version": "2.0",
-  "description": "Fixes the missing space valve item prototypes and hides the Advanced Fluid Handling valves when Configurable Valves is present.",
+  "description": "Fixes the missing space valve item prototypes, moves fluid handling buildings onto the Advanced Fluid Handling tab, and hides its valves when Configurable Valves is present.",
   "dependencies": [
     "? underground-pipe-pack",
     "? configurable-valves >= 1.0.0"

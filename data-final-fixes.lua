@@ -1,5 +1,8 @@
 if not mods["underground-pipe-pack"] then return end
 
+local AFH_GROUP = "advanced-underground-piping"
+local OUR_SUBGROUP = "aft-fluid-handling"
+
 -- Item names a valve entity refers to, through either mining results or placeable_by.
 local function referenced_items(entity)
     local names = {}
@@ -54,6 +57,52 @@ do
             end
         end
         if #added > 0 then data:extend(added) end
+    end
+end
+
+-- Advanced Fluid Handling adds its own item group. Move fluid handling buildings into it,
+-- so they stop being split across two tabs. Selection is by the type of the entity an item
+-- places: vanilla subgroups are no help here, since they scatter the storage tank into
+-- "storage", the offshore pump into "extraction-machine", and mix pipes together with
+-- electric poles in "energy-pipe-distribution".
+if data.raw["item-group"][AFH_GROUP] then
+    local FLUID_ENTITY_TYPES = {
+        ["pipe"] = true,
+        ["pipe-to-ground"] = true,
+        ["storage-tank"] = true,
+        ["pump"] = true,
+        ["valve"] = true,
+        ["offshore-pump"] = true,
+    }
+
+    data:extend({
+        {
+            type = "item-subgroup",
+            name = OUR_SUBGROUP,
+            group = AFH_GROUP,
+            order = "0", -- sorts ahead of the subgroups Advanced Fluid Handling defines
+        },
+    })
+
+    local function entity_type(name)
+        for type in pairs(FLUID_ENTITY_TYPES) do
+            if data.raw[type] and data.raw[type][name] then return type end
+        end
+    end
+
+    for _, category in pairs({data.raw.item, data.raw["item-with-entity-data"]}) do
+        for _, item in pairs(category) do
+            local subgroup = data.raw["item-subgroup"][item.subgroup or ""]
+            -- Leave alone whatever already sits on the Advanced Fluid Handling tab.
+            if item.place_result and entity_type(item.place_result)
+                and not (subgroup and subgroup.group == AFH_GROUP) then
+                item.subgroup = OUR_SUBGROUP
+
+                -- A recipe inherits the subgroup of its product unless it sets its own.
+                local recipe = data.raw.recipe[item.name]
+                if recipe and recipe.subgroup then recipe.subgroup = OUR_SUBGROUP end
+            end
+        end
     end
 end
 

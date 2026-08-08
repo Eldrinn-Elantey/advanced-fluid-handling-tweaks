@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 2026-08-08
+  Features:
+    - Moved fluid handling buildings onto the Advanced Fluid Handling tab, whichever mod they come from
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 2026-08-08
   Features:
