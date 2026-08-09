@@ -23,7 +23,7 @@ $info.version = $Version
 $folder = "$($info.name)_$Version"
 
 # Everything the mod needs at runtime; anything else in the repo stays out of the zip.
-$content = @('info.json', 'data-final-fixes.lua', 'locale', 'changelog.txt', 'LICENSE') |
+$content = @('info.json', 'data-final-fixes.lua', 'settings.lua', 'locale', 'changelog.txt', 'LICENSE') |
     Where-Object { Test-Path $_ }
 
 $staging = Join-Path 'build' $folder

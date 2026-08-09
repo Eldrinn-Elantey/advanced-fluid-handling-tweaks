@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.0
   Changes:
-    - Nothing yet
+    - Add a startup setting that stops underground pipes of different tiers from connecting, off by default
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.1
 Date: 2026-08-09

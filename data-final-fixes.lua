@@ -159,3 +159,29 @@ if mods["configurable-valves"] then
         end
     end
 end
+
+-- Underground pipes of different tiers connect to each other, unlike vanilla underground
+-- belts. Off by default: turning it on splits fluid networks wherever tiers already meet.
+if settings.startup["aft-separate-underground-tiers"].value then
+    local separated = 0
+
+    for _, category in pairs(data.raw) do
+        for _, prototype in pairs(category) do
+            -- Advanced Fluid Handling marks every tiered prototype it builds.
+            local compat = prototype.npt_compat
+            if type(compat) == "table" and compat.mod == "afh" and compat.tier then
+                local boxes = prototype.fluid_boxes or {prototype.fluid_box}
+                for _, box in pairs(boxes) do
+                    for _, connection in pairs(type(box) == "table" and box.pipe_connections or {}) do
+                        if connection.connection_type == "underground" then
+                            connection.connection_category = {"afh-t" .. compat.tier}
+                            separated = separated + 1
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    log("[aft] Separated " .. separated .. " underground connections by tier.")
+end
