@@ -12,6 +12,9 @@ jobs:
   release:
     # pwsh is preinstalled here, and release.ps1 has nothing Windows specific in it.
     runs-on: ubuntu-latest
+    # Job level, because a step cannot read the secrets context from its own if.
+    env:
+      FACTORIO_API_KEY: ${{ secrets.FACTORIO_API_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,6 +55,21 @@ jobs:
           Set-Content $notes ($entry -join "`n")
 
           gh release create "$env:GITHUB_REF_NAME" (Get-Item build/*.zip).FullName --notes-file $notes
+
+      # The mod page itself is created by hand; this only adds a release to it.
+      - name: Upload to the mod portal
+        if: ${{ env.FACTORIO_API_KEY != '' }}
+        shell: pwsh
+        run: |
+          $zip = (Get-Item build/*.zip).FullName
+          $headers = @{ Authorization = "Bearer $env:FACTORIO_API_KEY" }
+
+          $init = Invoke-RestMethod -Method Post -Headers $headers `
+              -Uri 'https://mods.factorio.com/api/v2/mods/releases/init_upload' `
+              -Form @{ mod = (Get-Content info.json -Raw | ConvertFrom-Json).name }
+
+          Invoke-RestMethod -Method Post -Headers $headers -Uri $init.upload_url `
+              -Form @{ file = Get-Item $zip } | Out-Null
 
       # The tag itself still holds the placeholder: it was written before this ran.
       - name: Commit the changelog and reopen it for the next release
