@@ -90,17 +90,37 @@ if data.raw["item-group"][AFH_GROUP] then
         end
     end
 
+    -- A subgroup is a row on the tab, so moving everything into a single one would put
+    -- pipes, tanks and pumps on one line. Each source subgroup gets a copy on the tab
+    -- instead, keeping the rows and their relative order as they were.
+    local mirrors = {}
+    local function mirror_of(source)
+        if not source then return OUR_SUBGROUP end
+        if not mirrors[source.name] then
+            mirrors[source.name] = OUR_SUBGROUP .. "-" .. source.name
+            data:extend({
+                {
+                    type = "item-subgroup",
+                    name = mirrors[source.name],
+                    group = AFH_GROUP,
+                    order = "0-" .. (source.order or source.name),
+                },
+            })
+        end
+        return mirrors[source.name]
+    end
+
     for _, category in pairs({data.raw.item, data.raw["item-with-entity-data"]}) do
         for _, item in pairs(category) do
             local subgroup = data.raw["item-subgroup"][item.subgroup or ""]
             -- Leave alone whatever already sits on the Advanced Fluid Handling tab.
             if item.place_result and entity_type(item.place_result)
                 and not (subgroup and subgroup.group == AFH_GROUP) then
-                item.subgroup = OUR_SUBGROUP
+                item.subgroup = mirror_of(subgroup)
 
                 -- A recipe inherits the subgroup of its product unless it sets its own.
                 local recipe = data.raw.recipe[item.name]
-                if recipe and recipe.subgroup then recipe.subgroup = OUR_SUBGROUP end
+                if recipe and recipe.subgroup then recipe.subgroup = item.subgroup end
             end
         end
     end
