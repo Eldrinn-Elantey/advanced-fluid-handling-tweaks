@@ -26,6 +26,22 @@ With Configurable Valves installed the two valve sets overlap, so the Advanced F
 
 Prototypes are deliberately not removed. Deleting them would erase already built valves from existing saves; hiding is reversible and safe to add to a running server.
 
+## Simpler underground pipe recipes
+
+The startup setting "Simplify Advanced Fluid Handling recipes" is off by default. Turned on, it rewrites the recipes of the underground pipes, the 4-to-4 pipe and the mini pumps of all three tiers so they take regular pipes instead of tiered segments and couplers:
+
+| Value | Ingredients that replace segments and couplers |
+|---|---|
+| Off | none, recipes stay as Advanced Fluid Handling defines them |
+| Fewer intermediates | pipes, swivel joints and small pipe couplers |
+| Pipes only | pipes |
+
+A segment turns into one, two or three pipes depending on its tier. In Pipes only, each swivel joint adds two pipes and each coupler one. Engines, plates and any ingredient another mod has added stay in the recipe. The mod then hides the recipes of intermediates that nothing consumes any more; their items remain.
+
+The rewrite runs in the data stage, so recipe changes other mods make in `data-updates.lua` apply on top of it.
+
 ## Licensing note
 
 This mod contains no code, graphics, locale text or other assets from `underground-pipe-pack` or `configurable-valves`. It only reads and modifies their prototypes at load time through the official Factorio data stage API (`data.raw`, `table.deepcopy`, `data:extend`), which is the standard mechanism for compatibility patches.
+
+The recipe simplification in `data.lua` adapts [Less Advanced Fluid Handling](https://mods.factorio.com/mod/underground-pipe-pack-simplified) 0.2.1 by Harag, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Changes: a three-value setting replaces its `lafh_only_pipes` toggle, the leftovers of the commented-out space tier are gone, and repeated coupler entries add up instead of overwriting each other.
