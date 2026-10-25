@@ -1,6 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.0
   Changes:
+    - Nothing yet
+---------------------------------------------------------------------------------------------------
+Version: 0.7.0
+Date: 2026-10-25
+  Changes:
     - Add a startup setting that makes Advanced Fluid Handling recipes take regular pipes instead of its segments and couplers, off by default
 ---------------------------------------------------------------------------------------------------
 Version: 0.6.0
