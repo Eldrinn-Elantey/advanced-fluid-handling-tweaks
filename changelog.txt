@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.0
   Changes:
-    - Nothing yet
+    - Require Factorio 2.1
+    - Remove the Russian translation of Advanced Fluid Handling's own strings, which that mod now ships
 ---------------------------------------------------------------------------------------------------
 Version: 0.5.0
 Date: 2026-08-09
