@@ -1,6 +1,6 @@
 # Advanced Fluid Handling Tweaks
 
-Small companion mod for Factorio 2.0 (tested target: headless server with Space Exploration + Krastorio 2), inert unless the mod it reacts to is active.
+Small companion mod for Factorio 2.1 (tested target: headless server with Space Exploration + Krastorio 2), inert unless the mod it reacts to is active.
 
 ## Restores the missing space valve items
 
