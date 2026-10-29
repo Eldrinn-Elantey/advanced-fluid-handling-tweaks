@@ -1,47 +1,27 @@
 # Advanced Fluid Handling Tweaks
 
-Small companion mod for Factorio 2.1 (tested target: headless server with Space Exploration + Krastorio 2), inert unless the mod it reacts to is active.
+[![FACTORIO](https://img.shields.io/badge/dynamic/json?color=orange&label=Factorio&query=downloads_count&suffix=%20downloads&url=https://mods.factorio.com/api/mods/advanced-fluid-handling-tweaks&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAACGVBMVEUAAAABAAAAAQAAAAEBAQEAAQEBAQDYhDvehje8eDmAgYDShj+ZZjPfhTfDdTiPUyvrkDynZTDafTTSeziCTSqeZzK2dTXWgT2NUzSAgQCMWjhtRjTVfTZ3QyJBQEDefzRrLA1gLQdwLASFOQtPLinkjELLeDZtLwxJJBKWPQ+cSxtkMiJdOiP1kz1XIgawYy2STyZlPi63dDpxRCVeIQbFjlVXOSmcbDusbjZ4Mgx2OhS/YCHTpW5GIhRnOhtDLCW2czeEOg+FNA2oYy7KllwnGhbNZjK/dTYpHxh9UTFOKhiAAQFIMCY3IhcdEg4oHBkpGxUZEBFbNhsvIh95RSFpOhsbDQ0AAQAyIxkAAABJMyQqIh4oHBq2bCzgijunZTSfViqtYy2yfU2udT6xay2zaiu3aii1aC2gXCynWiiuYiuYWS2qc0e5eD25bCqjYSmcWiSdVyO1aCulYyqZVCaXSR24dT2yaCmXVCWlXSevZiqFRSDEgEivaS2YXyyvZCqnYCq2bzGseUWpZSqJVSexajKyZyh/Ox2SYDaiZSqVVSaybje2aCmCPBiqYSacYSqlZCzBayurYSmdXy2vaSmfWia6dz66ayZyPh6NUyekXCamZiqrZSyoYSu3bTO7aCvFbiehVyNNJxdvSCuaXClLKRd/SSOiYSm6bSu5aii0YiaHQxxxPBySVidHJxlzOx1YLRdTOCGeXii5isPXAAAAXXRSTlMAAAAAAAAAcN1nAlUFF8mflsS//v64O12UAmBUPcEEv9t6e9+7aKHaDhHf/RbeeH7Cb27Hd3zjGv7YDRDd/ppnxNp4edy2BcYzWFQClFg2ufy6vo6gwBQDUQFp32wXrE9IAAAAvElEQVQYGQXBPyuEAQAH4N/zXlJKdimTstxCBouRSOjcnzK4T6ZEce+dk7AwGQ0m020WMSulnLvzPJIkJtP8JDKRzPA9a//2K0XGFTG3d8eue/Apmd8C4OZDsnAAoONdstiigyblWyxpUhpY1tAzUK2j+1qMi2qTkhUNui9JsdpER7GmpfScdQ09pNg45Ao1+k9D2VQDcPEwke0jAE4e/9iBNqe0z64jpn4ro/rxuX6dy4hiVIyPKIcmSf4BuN02xRLLCCIAAAAASUVORK5CYII=)](https://mods.factorio.com/mod/advanced-fluid-handling-tweaks) [![GitHub](https://img.shields.io/badge/Github-Source-white?logo=github)](https://github.com/Eldrinn-Elantey/advanced-fluid-handling-tweaks)
 
-## Restores the missing space valve items
+A companion mod for [Advanced Fluid Handling](https://mods.factorio.com/mod/underground-pipe-pack) in Factorio 2.1. It fixes a load crash, gathers all fluid handling buildings on one tab, and adds two optional settings for underground pipes.
 
-Advanced Fluid Handling (internal name `underground-pipe-pack`) used to ship a Space Exploration compatibility folder that defined item prototypes such as `80-overflow-space-valve`. That folder was removed upstream
-(https://github.com/TheStaplergun/pipemod/commit/fb065ae8854d41ca7cc0e3dfaeffbc73ebac282f), while valve entities still reference those items through `minable.result` / `placeable_by`. A dangling item reference aborts the data stage:
+Without Advanced Fluid Handling the mod does nothing.
 
-```
-Error in assignID: item with name '80-overflow-space-valve' does not exist.
-Source: 10-overflow-space-valve (valve).
-```
+## What it does
 
-Every prototype in `data.raw.valve` is walked, the item names it references are collected, and each name without an item prototype gets one: a `table.deepcopy` of an existing runtime prototype (`configurable-valve` from Configurable Valves if active, otherwise the vanilla `pipe` item), renamed, marked hidden, and pointed back at the valve entity. Each created item is logged.
+- Fixes the `Error in assignID: item with name '80-overflow-space-valve' does not exist` crash by creating the valve items Advanced Fluid Handling no longer ships
+- Moves pipes, pumps, tanks, valves and offshore pumps from vanilla and other mods onto the Advanced Fluid Handling tab
+- Hides the Advanced Fluid Handling valves when Configurable Valves is installed, so you get one valve set instead of two. Valves you already built stay in your save
+- Optional startup setting: underground pipes connect only within their own tier, the way vanilla underground belts do. On an existing save this splits fluid networks wherever two tiers meet
+- Optional startup setting: underground pipe and mini pump recipes take regular pipes instead of tiered segments and couplers. Fewer intermediates keeps swivel joints and small couplers, Pipes only replaces those too
 
-## One tab for fluid handling
+Both settings are off by default. Implementation details are in the [technical notes](https://github.com/Eldrinn-Elantey/advanced-fluid-handling-tweaks/blob/master/docs/technical-notes.md).
 
-Advanced Fluid Handling adds its own item group, which leaves vanilla pipes, pumps and tanks on a separate tab. Items are moved into that group when they place an entity of type `pipe`, `pipe-to-ground`, `storage-tank`, `pump`, `valve` or `offshore-pump`, whichever mod they come from, so both sets sit together.
+## Compatibility
 
-Subgroups are not usable as the criterion here: vanilla puts the storage tank in `storage`, the offshore pump in `extraction-machine`, and mixes pipes together with electric poles in `energy-pipe-distribution`. Items already sitting on the Advanced Fluid Handling tab are left where their own mod placed them.
+Works with [Configurable Valves](https://mods.factorio.com/mod/configurable-valves) 1.0.0 or newer. Tested on a headless server with Space Exploration and Krastorio 2.
 
-## Hides the Advanced Fluid Handling valves under Configurable Valves
+## Licensing
 
-With Configurable Valves installed the two valve sets overlap, so the Advanced Fluid Handling ones are switched off: their recipes get `enabled = false` and `hidden = true`, their items get `hidden = true`, and matching `unlock-recipe` technology effects are dropped so research cannot switch them back on.
+The recipe simplification adapts [Less Advanced Fluid Handling](https://mods.factorio.com/mod/underground-pipe-pack-simplified) 0.2.1 by Harag, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Changes: a three-value setting replaces its `lafh_only_pipes` toggle, the leftovers of the commented-out space tier are gone, and repeated coupler entries add up instead of overwriting each other.
 
-Prototypes are deliberately not removed. Deleting them would erase already built valves from existing saves; hiding is reversible and safe to add to a running server.
-
-## Simpler underground pipe recipes
-
-The startup setting "Simplify Advanced Fluid Handling recipes" is off by default. Turned on, it rewrites the recipes of the underground pipes, the 4-to-4 pipe and the mini pumps of all three tiers so they take regular pipes instead of tiered segments and couplers:
-
-| Value | Ingredients that replace segments and couplers |
-|---|---|
-| Off | none, recipes stay as Advanced Fluid Handling defines them |
-| Fewer intermediates | pipes, swivel joints and small pipe couplers |
-| Pipes only | pipes |
-
-A segment turns into one, two or three pipes depending on its tier. In Pipes only, each swivel joint adds two pipes and each coupler one. Engines, plates and any ingredient another mod has added stay in the recipe. The mod then hides the recipes of intermediates that nothing consumes any more; their items remain.
-
-The rewrite runs in the data stage, so recipe changes other mods make in `data-updates.lua` apply on top of it.
-
-## Licensing note
-
-This mod contains no code, graphics, locale text or other assets from `underground-pipe-pack` or `configurable-valves`. It only reads and modifies their prototypes at load time through the official Factorio data stage API (`data.raw`, `table.deepcopy`, `data:extend`), which is the standard mechanism for compatibility patches.
-
-The recipe simplification in `data.lua` adapts [Less Advanced Fluid Handling](https://mods.factorio.com/mod/underground-pipe-pack-simplified) 0.2.1 by Harag, licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Changes: a three-value setting replaces its `lafh_only_pipes` toggle, the leftovers of the commented-out space tier are gone, and repeated coupler entries add up instead of overwriting each other.
+The mod contains no code, graphics, locale text or other assets from `underground-pipe-pack` or `configurable-valves`. It reads and modifies their prototypes at load time through the Factorio data stage API.
