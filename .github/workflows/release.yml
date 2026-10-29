@@ -75,6 +75,21 @@ jobs:
           Invoke-RestMethod -Method Post -Headers $headers -Uri $init.upload_url `
               -Form @{ file = Get-Item $zip } | Out-Null
 
+      # Overwrites the portal description on every release, so edits made on the portal itself are lost.
+      - name: Sync the mod portal description
+        if: ${{ env.FACTORIO_API_KEY != '' }}
+        shell: pwsh
+        run: |
+          $info = Get-Content info.json -Raw | ConvertFrom-Json
+          Invoke-RestMethod -Method Post -Headers @{ Authorization = "Bearer $env:FACTORIO_API_KEY" } `
+              -Uri 'https://mods.factorio.com/api/v2/mods/edit_details' `
+              -Form @{
+                  mod = $info.name
+                  summary = $info.description
+                  description = (Get-Content README.md -Raw)
+                  source_url = "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY"
+              } | Out-Null
+
       # The tag itself still holds the placeholder: it was written before this ran.
       - name: Commit the changelog and reopen it for the next release
         shell: pwsh
